@@ -7,7 +7,7 @@ const db = mysql.createConnection({
   host: 'localhost',
   user: 'tablakwn_admin',
   //password: 'casaos',
-  //password: '',
+  password: 'perrobailandojazz',
   database: 'tablakwn_tablaperiodica' 
 });
 
