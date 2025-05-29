@@ -166,18 +166,25 @@ function stopElectronLink(electron, line, positions, geometry, update, listener)
     if (raycasted.object.userData.electron && raycasted.object != line.parent &&
         raycasted.object.userData.pair == undefined && raycasted.object.parent != electron.parent) {
 
-        console.log(createLink(raycasted.object, electron));
 
-        elemento[raycasted.object.parent.userData.parent.id].link = [{}]
+        let momInfoObj = elemento[electron.parent.userData.parent.id];
+        let dadInfoObj = elemento[raycasted.object.parent.userData.parent.id];
+
+        let links = createLink(raycasted.object, electron);
+
+        dadInfoObj.links.push(links.dad);
+        momInfoObj.links.push(links.mom);
 
         let compoundInfo = newCompound(electron.parent.userData.parent, raycasted.object.parent.userData.parent);
+        console.log(compoundInfo);
 
         let compuesto = new infoObjCompound(compoundInfo);
         compound.push(compuesto);
 
-        elemento[electron.parent.userData.parent.id].child = compuesto;
-        elemento[raycasted.object.parent.userData.parent.id].child = compuesto;
-        console.log(compuesto);
+        compuesto.componentes.forEach(componente => {
+            componente.child = compuesto;
+            componente.elemeneto = false;
+        });
 
         line.userData.dad = electron;
         line.userData.mom = raycasted.object;
@@ -214,7 +221,7 @@ function stopElectronLink(electron, line, positions, geometry, update, listener)
     }
 }
 
-function createLink(elecObj1, elecObj2){
+function createLink(elecObj1, elecObj2) {
     let elementInfoObj1 = elemento[elecObj1.parent.userData.parent.id];
     let elementInfoObj2 = elemento[elecObj2.parent.userData.parent.id];
 
@@ -223,15 +230,12 @@ function createLink(elecObj1, elecObj2){
         mom: {}
     };
 
-    let electro = elementInfoObj1.electroNegatividad - elementInfoObj2.electroNegatividad;
-    if(electro < 0){
-        electro = electro * -1;
-    }
-
+    let electro = Math.abs(elementInfoObj1.electroNegatividad - elementInfoObj2.electroNegatividad).toFixed(2);
     let name;
-    if(electro >= 1.7){
+
+    if (electro >= 1.7) {
         name = "ionico"
-    }else{
+    } else {
         name = "covalente"
     }
 
@@ -274,7 +278,6 @@ function newCompound(obj1, obj2) {
     let infoObj1 = elemento[obj1.id];
     let infoObj2 = elemento[obj2.id];
     let objs = getComponents(infoObj1, infoObj2);
-    console.log(objs);
 
     let type;
     let nombre, simbolo;
@@ -286,29 +289,56 @@ function newCompound(obj1, obj2) {
     let noMetalesElec = ["F", "Cl", "Br", "I", "O", "S", "Se"];
     let noMetalesNoElec = ["N", "P", "As", "Sb"];
 
-    if(objs.total == 2){
- 
+    console.log(objs);
+    //SI es el compuesto es de un solo tipo de elemento
+    if (objs.tipos == 1 && objs.total > 1) {
+        nombre = infoObj1.nombre;
+        simbolo = infoObj1.simbolo;
+        obj1.material.color.set(getTypeColor(infoObj1.tipo));
+        obj2.material.color.set(getTypeColor(infoObj1.tipo));
+        simbolo = simbolo + "<sub>" + objs.total + "</sub>"
+        type = infoObj1.tipo
     }
 
+    //Si es un compuesto binario
+    if (objs.tipos == 2) {
+        objs.componentes.forEach(obj => {
+            if (obj.simbolo === "O") {
+                let otherElement = objs.componentes.find(componente => componente.nombre.toLowerCase() !== 'oxigeno');
+
+                if (noMetales.includes(otherElement.tipo)) {
+                    type = "oxidosNoMetalicos";
+                    objs.componentes.forEach(componente => {
+                        componente.obj3D.material.color.set(getTypeColor(type));
+                    });
+                    nombre = "Oxido de " + otherElement.nombre + numRomanos(otherElement.oxidacion);
+                } else if (metales.includes(otherElement.tipo)) {
+                    type = "oxidosMetalicos";
+                    objs.componentes.forEach(componente => {
+                        componente.obj3D.material.color.set(getTypeColor(type));
+                    });
+                    if (infoObj1.simbolo === "O") nombre = "Oxido de " + otherElement.nombre +
+                        numRomanos(otherElement.oxidacion);
+                }
+
+                simbolo = otherElement.simbolo + "<sub>" + objs[otherElement.nombre] + "</sub>" + "O" + "<sub>" + objs.oxigeno + "</sub>";
+                console.log(simbolo);
+            }
+        });
+    }
+
+    console.log(nombre);
+    return {
+        nombre: nombre,
+        simbolo: simbolo,
+        tipo: type,
+        componentes: objs.componentes
+    };
+
+    /*
     if (infoObj1.elemento == true && infoObj2.elemento == true) {
-        infoObj1.elemento = false;
-        infoObj2.elemento = false;
         let componentes = [infoObj1, infoObj2];
         let numOxidacion = parseInt(infoObj1.oxidacion) + parseInt(infoObj2.oxidacion);
-
-        if (infoObj1.simbolo == infoObj2.simbolo) {
-            nombre = infoObj1.nombre;
-            simbolo = infoObj1.simbolo;
-            obj1.material.color.set(getTypeColor(infoObj1.tipo));
-            obj2.material.color.set(getTypeColor(infoObj1.tipo));
-
-            return {
-                nombre: nombre,
-                simbolo: "(" + simbolo + "<sub>2</sub>) <sup>" + numOxidacion + "</sup>",
-                tipo: infoObj1.tipo,
-                componentes: componentes
-            };
-        }
 
         if (infoObj1.simbolo === "H" || infoObj2.simbolo === "H") {
             let elemento;
@@ -352,41 +382,6 @@ function newCompound(obj1, obj2) {
                 }
             }
             simbolo = "H" + elemento.simbolo;
-
-            return {
-                nombre: nombre,
-                simbolo: "(" + simbolo + ") <sup>" + numOxidacion + "</sup>",
-                tipo: type,
-                componentes: componentes
-            };
-        }
-
-        if (infoObj1.simbolo === "O" || infoObj2.simbolo === "O") {
-            let elemento;
-            if (infoObj1.simbolo !== "O") {
-                let temp = infoObj1;
-                infoObj1 = infoObj2;
-                infoObj2 = temp;
-            }
-            elemento = infoObj2;
-
-            if (noMetales.includes(elemento.tipo)) {
-                infoObj1.tipo = "oxidosNoMetalicos";
-                infoObj2.tipo = "oxidosNoMetalicos";
-                type = "oxidosNoMetalicos";
-                obj1.material.color.set(getTypeColor(type));
-                obj2.material.color.set(getTypeColor(type));
-                nombre = "Oxido de " + elemento.nombre + numRomanos(elemento.oxidacion);
-            } else if (metales.includes(elemento.tipo)) {
-                infoObj1.tipo = "oxidosMetalicos";
-                infoObj2.tipo = "oxidosMetalicos";
-                type = "oxidosMetalicos";
-                obj1.material.color.set(getTypeColor(type));
-                obj2.material.color.set(getTypeColor(type));
-                if (infoObj1.simbolo === "O") nombre = "Oxido de " + elemento.nombre +
-                    numRomanos(elemento.oxidacion);
-            }
-            simbolo = elemento.simbolo + "O";
 
             return {
                 nombre: nombre,
@@ -450,10 +445,6 @@ function newCompound(obj1, obj2) {
         }
     } else {
         let numOxidacion = 0, simbolo = "";
-        objs.forEach(obj => {
-            numOxidacion += parseInt(obj.oxidacion);
-            simbolo += obj.simbolo;
-        });
 
         obj1.material.color.set(getTypeColor("desconocido"));
         obj2.material.color.set(getTypeColor("desconocido"));
@@ -464,13 +455,14 @@ function newCompound(obj1, obj2) {
             tipo: "desconocido"
         }
     }
+        */
 }
 
 function getComponents(obj1, obj2) {
     let objs = [];
-    const contador = { total: 0 };
+    const contador = { total: 0, tipos: 0 };
 
-    if (obj1.elemento == true) {
+    if (!obj1.child) {
         objs.push(obj1);
     } else {
         console.log(obj1.child);
@@ -479,7 +471,7 @@ function getComponents(obj1, obj2) {
         });
     }
 
-    if (obj2.elemento == true) {
+    if (!obj2.child) {
         objs.push(obj2);
     } else {
         obj2.child.componentes.forEach(obj => {
@@ -494,11 +486,11 @@ function getComponents(obj1, obj2) {
             contador[nombre]++;
         } else {
             contador[nombre] = 1;
+            contador.tipos++;
         }
-    
-
         contador.total++;
     }
+    contador.componentes = objs;
 
     return contador;
 }
@@ -757,7 +749,7 @@ function infoObj(HTMLtarget, obj3D) {
     this.z = HTMLtarget.getAttribute("data-numatomico");
     this.periodo = HTMLtarget.getAttribute("data-periodo");
     this.grupo = HTMLtarget.getAttribute("data-grupo");
-    this.electroNegatividad = radioAtomico(HTMLtarget.getAttribute("data-electroNegatividad"), HTMLtarget.getAttribute("data-electroNegatividad"));
+    this.electroNegatividad = HTMLtarget.getAttribute("data-electroNegatividad");
     this.radioAtomico = radioAtomico(HTMLtarget.getAttribute("data-periodo"), HTMLtarget.getAttribute("data-grupo"));
     this.configE = new elementoConfigE(HTMLtarget.getAttribute("data-numatomico"), HTMLtarget.getAttribute("data-superindice"));
     this.id = atomSelected;
@@ -768,6 +760,7 @@ function infoObj(HTMLtarget, obj3D) {
     this.angle = Math.floor(Math.random() * 360);
     this.rgb = [obj3D.material.color.r, obj3D.material.color.g, obj3D.material.color.b];
     this.obj3D = obj3D;
+    this.links = [];
 }
 
 function createElectrons(nucleus, numElectrons) {
@@ -826,7 +819,6 @@ function createElectrons(nucleus, numElectrons) {
 export function crearAtomo(event) {
     container.style.zIndex = 1;
     let selected = event.currentTarget;
-    console.log(selected);
 
     let nucleo = createNucleus(getColor(selected), radioAtomico(selected.getAttribute("data-periodo"), selected.getAttribute("data-grupo")));
     atomSelected = nucleo.id;
