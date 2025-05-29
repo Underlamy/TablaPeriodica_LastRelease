@@ -1,0 +1,58 @@
+<%- include('header') %>
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <title>Registrate</title>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="stylesheet" href="./css/login.css">
+  <script src="./js/community/login.js"></script>
+</head>
+
+<body>
+  <div class="super-container">
+    <div class="login-container">
+      <h2>BIENVENIDO</h2>
+      <h3>Registrate para participar en la comunidad</h3>
+      <form action="/registerProcess" method="POST">
+        <% if(form){ %>
+        <input type="text" name="username" class="input" placeholder="Usuario..." value="<%= form.username %>" required>
+
+        <div class="input-group">
+          <input type="password" name="password" id="password" class="input-group" placeholder="Contraseña..." value="<%= form.password %>" required>
+          <i class="fa-solid fa-eye" id="icon-eye"></i>
+        </div>
+        <% }else{ %>
+        <input type="text" name="username" class="input" placeholder="Usuario..." required>
+
+        <div class="input-group">
+          <input type="password" name="password" id="password" class="input-group" placeholder="Contraseña..." required>
+          <i class="fa-solid fa-eye" id="icon-eye"></i>
+        </div>
+        <% } %>
+
+        <input type="submit" class="login-btn" value="REGISTRATE">
+
+        <% if(noti){ %>
+        <div class="noti">
+            <div class="icon">
+                <i class="fa-solid fa-circle-xmark"></i>
+            </div>
+
+            <div class="text">
+                <%= noti %>
+            </div>
+        </div>
+        <% } %>
+
+        <span>Ya tienes una cuenta? <a class="special-link" href="?q=login">Inicia Sesion</a></span>
+      </form>
+    </div>
+  </div>
+</body>
+
+</html>

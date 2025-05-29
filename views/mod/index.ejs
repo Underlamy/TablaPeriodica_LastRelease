@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Eleccion</title>
+  <link rel="stylesheet" href="./css/mod/home.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+</head>
+
+<body>
+  <div class="super-container">
+    <div class="main-bar">
+      <div class="search-bar frosted">
+        <input class="search-box" placeholder="Buscar...">
+        <div class="filters"></div>
+      </div>
+
+      <div class="card-section" id="ajax">
+        <%- include('sugerencia') %>
+      </div>
+    </div>
+
+    <div class="side-bar">
+      <div class="frosted filter-item">
+        <div class="filter-title">
+          Seleccionar Categoria
+        </div>
+
+        <div class="filter-form">
+          <input type="radio" id="all" name="type" class="filter-radio" value="all" checked>
+          <label for="all">Todos</label><br>
+          <input type="radio" id="tabla" name="type" class="filter-radio" value="tabla">
+          <label for="tabla">Tabla Periodica</label><br>
+          <input type="radio" id="lewis" name="type" class="filter-radio" value="lewis">
+          <label for="lewis">Laboratorio (Lewis)</label><br>
+          <input type="radio" id="dalton" name="type" class="filter-radio" value="dalton">
+          <label for="dalton">Laboratorio (Dalton)</label><br>
+          <input type="radio" id="general" name="type" class="filter-radio" value="general">
+          <label for="general">General</label>
+        </div>
+      </div>
+
+      <div class="frosted filter-item">
+        <div class="filter-title">
+          Ordenar por Fecha
+        </div>
+
+        <div class="filter-form">
+          <input type="radio" id="reciente" name="date" class="filter-radio" value="reciente" checked>
+          <label for="reciente">Mas recientes...</label><br>
+          <input type="radio" id="antiguo" name="date" class="filter-radio" value="antiguo">
+          <label for="antiguo">Menos antiguos...</label><br>
+        </div>
+      </div>
+
+      <div class="frosted filter-item">
+        <div class="filter-title">
+          Validacion
+        </div>
+
+        <div class="filter-form">
+          <input type="radio" id="validado" name="validar" class="filter-radio" value=1>
+          <label for="validado">Validado</label><br>
+          <input type="radio" id="no-validado" name="validar" class="filter-radio" value=0 checked>
+          <label for="no-validado">No Validado</label><br>
+        </div>
+      </div>
+
+      <div class="frosted filter-item">
+        <div class="filter-title">
+          Revision
+        </div>
+
+        <div class="filter-form">
+          <input type="radio" id="revisado" name="revisar" class="filter-radio" value=1>
+          <label for="revisado">Revisado</label><br>
+          <input type="radio" id="no-revisado" name="revisar" class="filter-radio" value=0 checked>
+          <label for="no-revisado">No Revisado</label><br>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="./js/mod/sugerencias.js"></script>
+</body>
+
+</html>

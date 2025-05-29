@@ -1,0 +1,53 @@
+<% 
+        sugerencias.forEach(sugerencia => { 
+        let tipo;
+        switch(sugerencia.Tipo){
+            case "lewis":
+                tipo = "Laboratorio de Lewis";
+                break;
+
+            case "dalton":
+                tipo = "Laboratorio de Dalton";
+                break;
+
+            case "tabla":
+                tipo = "Tabla Periodica";
+                break;
+
+            default:
+                tipo = "General";
+                break;
+        }
+
+        const opciones = {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true,
+            timeZone: 'America/Tijuana'
+        };
+        const fechaFormateada = new Date(sugerencia.Fecha).toLocaleString('es-MX', opciones);
+    %>
+<div class="card frosted">
+  <div class="card-header">
+    <span class="title"><%= sugerencia.Titulo %></span>
+    <span class="type"><%= tipo %></span>
+  </div>
+
+  <div class="card-content">
+    <div class="text"><%= sugerencia.Texto %></div>
+
+    <div class="details">
+      <div class="username"><%= sugerencia.Username ? sugerencia.Username : '[Eliminado]' %>#<%= sugerencia.IDUsuario %></div>
+      <div class="time"><%= fechaFormateada %></div>
+    </div>
+  </div>
+
+  <div class="opt">
+    <span class="aceptar btn" data-id="<%= sugerencia.IDSugerencia %>">Aceptar</span>
+    <span class="rechazar btn" data-id="<%= sugerencia.IDSugerencia %>">Rechazar</span>
+  </div>
+</div>
+<% }); %>

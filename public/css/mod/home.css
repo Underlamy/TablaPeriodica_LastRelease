@@ -1,0 +1,204 @@
+body {
+    background-image: url("../../resources/img/mountain.jpg");
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    font-family: "Inter", sans-serif;
+    font-optical-sizing: auto;
+    font-style: normal;
+    overflow: hidden;
+}
+
+.super-container {
+    height: 80dvh;
+    padding: 10dvh 20dvh;
+    display: flex;
+    align-items: stretch;
+    gap: 2dvh;
+    overflow-y: hidden;
+}
+
+.main-bar {
+    flex-grow: 2;
+}
+
+.side-bar {
+    flex-grow: 1;
+}
+
+.search-bar {
+    width: 100%;
+    margin-bottom: 2dvh;
+}
+
+.search-box {
+    color: white;
+    background-color: transparent;
+    border: none;
+    padding: 2dvh;
+    font-size: 2dvh;
+    border-radius: 1dvh;
+    width: 100%;
+}
+
+.search-box::placeholder {
+    color: white;
+}
+
+input:focus {
+    outline: none;
+}
+
+.frosted {
+    backdrop-filter: blur(5px) saturate(200%);
+    -webkit-backdrop-filter: blur(5px) saturate(200%);
+    background-color: rgba(17, 25, 40, 0.5);
+    border-radius: 1dvh;
+    border: 1px solid rgba(255, 255, 255, 0.125);
+}
+
+.card {
+    width: 98.5%;
+    margin-bottom: 2dvh;
+    margin-left: 1%;
+    direction: ltr;
+}
+
+.card-header {
+    padding: 2dvh;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.125);
+    overflow-x: hidden;
+}
+
+::-webkit-scrollbar {
+    width: 1dvh;
+}
+
+::-webkit-scrollbar-track {
+    width: 1dvh;
+    background-color: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    width: 1dvh;
+    backdrop-filter: blur(5px) saturate(200%);
+    -webkit-backdrop-filter: blur(5px) saturate(200%);
+    background-color: rgba(17, 25, 40, 0.5);
+    border-radius: 1dvh;
+}
+
+.card-section {
+    overflow-x: hidden;
+    flex: 1;
+    overflow-y: visible;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+
+    direction: rtl;
+    unicode-bidi: bidi-override;
+}
+
+.title {
+    word-break: break-all;
+    color: #ffffff;
+    font-size: 2dvh;
+    font-weight: 400;
+}
+
+.type {
+    float: right;
+    font-size: 1.5dvh;
+    color: #d4d4d4;
+    font-weight: 400;
+}
+
+.text {
+    word-break: break-all;
+    padding-bottom: 2dvh;
+    margin-bottom: 1dvh;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.125);
+}
+
+.details {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.username {
+    font-size: 1.5dvh;
+    color: #d4d4d4;
+}
+
+.time {
+    float: right;
+    font-size: 1.5dvh;
+    color: #d4d4d4;
+}
+
+.card-content {
+    padding: 2dvh;
+    color: #ffffff;
+    font-size: 2dvh;
+    font-weight: 400;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.125);
+}
+
+.opt {
+    padding: 2dvh;
+    display: flex;
+    align-items: center;
+    color: white;
+}
+
+.aceptar {
+    font-size: 2dvh;
+    padding: 1dvh;
+    border-radius: 1dvh;
+    background-color: #2ea44f;
+    cursor: pointer;
+}
+
+.aceptar:hover {
+    background-color: #278d44;
+}
+
+.rechazar {
+    font-size: 2dvh;
+    margin-left: 1dvh;
+    padding: 1dvh;
+    border-radius: 1dvh;
+    background-color: #d81e5b;
+    cursor: pointer;
+}
+
+.rechazar:hover {
+    background-color: #ac194a;
+}
+
+.filter-item {
+    margin-bottom: 2dvh;
+    padding: 2dvh;
+}
+
+.filter-title {
+    font-size: 1.5dvh;
+    color: #d4d4d4;
+    margin-bottom: 1dvh;
+    padding-bottom: 1dvh;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.125);
+}
+
+.filter-form {
+    font-size: 2dvh;
+    color: white;
+}

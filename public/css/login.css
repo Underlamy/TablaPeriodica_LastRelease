@@ -1,0 +1,137 @@
+body {
+    font-family: Arial, sans-serif;
+}
+
+.super-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 85dvh;
+}
+
+.login-container {
+    width: 50dvh;
+    background: white;
+    padding: 4dvh;
+    border-radius: 1dvh;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.login-container h2 {
+    font-size: 3.5dvh;
+}
+
+.login-container h3 {
+    font-size: 2dvh;
+    margin-bottom: 2dvh;
+    color: #595959;
+}
+
+.input {
+    font-size: 2.5dvh;
+    padding: 1.5dvh 1.5dvh 1.5dvh 2dvh;
+    background-color: #eeeeeeff;
+    margin-bottom: 2dvh;
+    width: 100%;
+    border: none;
+    border-radius: 1dvh;
+}
+
+.input-group {
+    padding: 1.5dvh;
+    background-color: #eeeeeeff;
+    margin-bottom: 2dvh;
+    width: 100%;
+    border: none;
+    border-radius: 1dvh;
+}
+
+.input-group i {
+    font-size: 2.5dvh;
+    background-color: #eeeeeeff;
+    color: #595959;
+    width: 15%;
+    border: none;
+}
+
+.input-group input {
+    padding: 0;
+    margin-bottom: 0;
+    font-size: 2.5dvh;
+    background-color: #eeeeeeff;
+    width: 80%;
+    border: none;
+}
+
+input:focus {
+    border: none;
+    outline: 0 none;
+}
+
+.login-btn {
+    background-color: #b26bffff;
+    color: white;
+    padding: 2dvh;
+    border: none;
+    width: 100%;
+    border-radius: 1dvh;
+    cursor: pointer;
+    font-size: 2.5dvh;
+    font-weight: bold;
+    margin-bottom: 1dvh;
+}
+
+.login-btn:hover {
+    background-color: rgb(151, 91, 214);
+}
+
+span {
+    font-size: 2dvh;
+}
+
+.special-link {
+    font-weight: bold;
+    color: #b26bffff;
+    text-decoration: underline;
+}
+
+.noti {
+    display: flex;
+    align-items: center;
+
+    margin: auto;
+
+    background-color: #ffd2d7ff;
+    width: 65%;
+    border-radius: 1dvh;
+    margin-bottom: 2dvh;
+    border: 0.5dvh solid #ff3148;
+    padding: 0.5dvh;
+}
+
+.icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: 5dvh;
+    height: 5dvh;
+    background-color: #ff3148;
+    border-radius: 1dvh;
+}
+
+.icon i {
+    font-size: 3dvh;
+    color: rgb(255, 255, 255);
+
+}
+
+.text {
+    padding-left: 1dvh;
+    font-size: 2dvh;
+    color: #ff3148;
+    font-weight: bold;
+    height: 100%;
+    width: 80%;
+}

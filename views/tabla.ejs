@@ -1,0 +1,60 @@
+<%- include('loader.html') %>
+<%- include('settings') %>
+
+<html>
+
+<head>
+  <link rel="stylesheet" href="./css/tabla.css">
+  <link rel="stylesheet" href="./css/settings.css">
+  <link rel="stylesheet" href="./css/clasificaciones.css">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <script src="./js/clasificaciones.js"></script>
+  <script src="./js/tabla.js"></script>
+
+  <title>TABLA PERIODICA</title>
+</head>
+
+<body>
+  <div class="menu_filter">
+    <div class="menu">
+      <div class="close fa-solid fa-xmark"></div>
+      <div>Modo temático</div>
+      <input type="radio" id="grupo" name="color_mode" value="grupo" checked>
+      <label for="html">Familias o grupos</label><br>
+      <input type="radio" id="estado" name="color_mode" value="estado">
+      <label for="css">Estados de materia</label><br>
+      <input type="radio" id="lamibilidad" name="color_mode" value="lickable">
+      <label for="javascript">Nivel de lamibilidad</label>
+    </div>
+  </div>
+
+  <div id="ajax">
+    <%- include('clasificaciones/grupo') %>
+  </div>
+
+  <div>
+    <% let lantanidosCont = 3;
+       let actinidosCont = 3;
+
+      elementos.forEach(elemento => { %>
+      <a href="?z=<%= elemento.numAtomico %>">
+      <% if(elemento.tipo == "lantanidos"){ %>
+        <div class="grupo<%- lantanidosCont++ %> periodo8 <%= elemento.tipo %> hoverBloque bloque <%= elemento.numAtomico %>">
+      <% }else if (elemento.tipo == "actinidos"){ %>
+        <div class="grupo<%- actinidosCont++ %> periodo9 <%= elemento.tipo %> hoverBloque bloque <%= elemento.numAtomico %>">
+      <% }else{ %>
+        <div class="grupo<%= elemento.grupo %> periodo<%= elemento.periodo %> <%= elemento.tipo %> hoverBloque bloque <%= elemento.numAtomico %>">
+      <% } %>
+        <div class="num-atomico"><%= elemento.numAtomico %></div>
+        <div class="simbolo"><%= elemento.simbolo %></div>
+        <div class="nombre"><%= elemento.nombre %></div>
+      </div>
+    </a>
+    <% }); %>
+
+    <div class="grupo3 periodo6 lantanidos hoverBloque bloque 0"></div>
+    <div class="grupo3 periodo7 actinidos hoverBloque bloque 0"></div>
+</body>
+
+</html>

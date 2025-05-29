@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./css/header.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"/>
+	<script src="https://kit.fontawesome.com/3fbe9e080a.js" crossorigin="anonymous"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  </head>
+  <body>
+    <div class="navbar">
+        <a href="#" class="logo"><img src="./resources/img/logo.png" alt="Logo" /></a>
+        <a href="/">HOME</a>
+        <a href="?q=sugerencias">SUGERENCIAS</a>
+
+		<div class="navbar-right">
+			<a href="https://github.com/Underlamy">GITHUB</a>
+		<% if(user){ %>
+		<a href="?q=logout">LOGOUT</a>
+		<% }else{ %>
+		<a href="?q=register">REGISTER</a>
+		<% } %>
+		</div>
+    </div>
+  </body>
+</html>
