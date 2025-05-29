@@ -69,9 +69,15 @@ router.get('/laboratorio', (req, res) => {
 					elemento.oxidacion = results[index];
 					return elemento;
 				});
-				arr.map((wawa) => {
-					const estados = wawa.oxidacion.Estados?.slice(1, -1).split(', ') || [];
-					wawa.oxidacion.Estados = estados;
+				arr.forEach((wawa) => {
+					const estadosStr = wawa?.oxidacion?.Estados;
+
+					if (typeof estadosStr === 'string') {
+						const estados = estadosStr.slice(1, -1).split(', ');
+						wawa.oxidacion.Estados = estados;
+					} else {
+						wawa.oxidacion.Estados = [];
+					}
 				});
 
 				res.render('laboratorio', { elementos: arr, get: get });
