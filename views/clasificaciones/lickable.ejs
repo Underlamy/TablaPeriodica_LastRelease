@@ -1,0 +1,31 @@
+<button class="btn-check" onclick="popLick([1, 0, 0, 0])">
+  <div class="fila1 columna2 checkBox safe"></div>
+  <div class="fila1 columna2 clasificacion"> SEEEEEEH</div>
+</button>
+
+<button class="btn-check" onclick="popLick([0, 1, 0, 0])">
+  <div class="fila1 columna3 checkBox maybe-not"></div>
+  <div class="fila1 columna3 clasificacion"> NAH, NO LO HAGAS</div>
+</button>
+
+<button class="btn-check" onclick="popLick([0, 0, 1, 0])">
+  <div class="fila2 columna2 checkBox dont"></div>
+  <div class="fila2 columna2 clasificacion"> DE VERDAD NO</div>
+</button>
+
+<button class="btn-check" onclick="popLick([0, 0, 0, 1])">
+  <div class="fila2 columna3 checkBox dead"></div>
+  <div class="fila2 columna3 clasificacion"> MORIRAS</div>
+</button>
+
+<button class="btn-check" onclick="popLick([1, 1, 1, 1])">
+  <div class="fila3 columna2 checkBox no-especifico"></div>
+  <div class="fila3 columna2 clasificacion"> SELECCIONAR TODOS</div>
+</button>
+
+<button class="btn-check" onclick="popLick([0, 0, 0, 0])">
+  <div class="fila3 columna3 checkBox no-especifico"></div>
+  <div class="fila3 columna3 clasificacion"> DESCARTAR TODOS</div>
+</button>
+
+<input type="hidden" id="resultados-query" data-json='<%- JSON.stringify(query) %>'>>

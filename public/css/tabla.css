@@ -7,22 +7,22 @@ body{
     overflow: hidden;
 }
 
-.no-metales{
+.noMetales{
     background-color: #ff3720;
 }
-.metales-alcalinos{
+.metalesAlcalinos{
     background-color: #3bff55;  
 }
 .metaloides{
     background-color: #ff2fbd;  
 }
-.otros-metales{
+.otrosMetales{
     background-color: #c300ff;    
 }
-.alcalinoterreos{
+.alcalinoTerreos{
     background-color:#22ffaa;
 }
-.metales-transicion{
+.metalesTransicion{
     background-color: #00d9ff;
 }
 .lantanidos{
@@ -34,10 +34,10 @@ body{
 .halogenos{
     background-color: #ff792b;
 }
-.gases-nobles{
+.gasesNobles{
     background-color: #ffd900;
 }
-.no-especifico{
+.noEspecifico{
     background-color: rgb(180, 180, 180);
 }
 
@@ -182,4 +182,52 @@ video{
     background: #1c1c1d;
     opacity: 0.3;
     mix-blend-mode: overlay;
+}
+
+.menu_filter {
+    display: none;
+    z-index: 1000;
+
+    left: 50%;
+
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.493);
+    position: absolute;
+}
+
+.menu {
+    border-radius: 1dvh;
+    z-index: 1000;
+    width: 100dvh;
+    height: 60dvh;
+    background-color: rgba(0, 0, 0, 0.493);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.close{
+    padding: 1dvh;
+    position: absolute;
+    right: 0;
+    color: rgba(255, 255, 255, 0.849);
+    font-size: 4dvh;
+    cursor: pointer;
+}
+
+.safe{
+    background-color: #3bff55 !important;
+}
+
+.maybe-not{
+    background-color: #ffd900 !important;
+}
+
+.dont{
+    background-color: #ff3720 !important;
+}
+
+.dead{
+    background-color: #c300ff !important;
 }

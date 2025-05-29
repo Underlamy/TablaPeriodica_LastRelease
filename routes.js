@@ -29,16 +29,53 @@ router.get('/tablaPeriodica', (req, res) => {
 				return res.render('info', { elementos: null, mensaje: 'No se encontraron elementos.' });
 			}
 
-			console.log(masa);
-			console.log(results[0]);
+
 			// Renderiza la vista EJS con los datos obtenidos
 			res.render('info', { datos: results[0], isotopos: results });
 			// Envía el primer resultado (si esperas un único elemento)
 		});
 	} else {
-		// Si no se proporciona `z`, renderiza la tabla principal
-		res.render('tabla');
+		query = "select * from elementos"
+
+		db.query(query, (err, results) => {
+			if (err) {
+				console.error('Error ejecutando la consulta:', err);
+				return res.status(500).send('Error en la base de datos');
+			}
+
+			// Renderiza la vista EJS con los datos obtenidos
+			res.render('tabla', { elementos: results });
+			// Envía el primer resultado (si esperas un único elemento)
+		});
 	}
+});
+
+router.get('/elementos', (req, res) => {
+	let type = req.query.type;
+	let query = 'select numAtomico, ' + type + ' from elementos;';
+	console.log(type);
+
+	// Ejecuta la consulta de forma segura con parámetros
+	db.query(query, (err, results) => {
+		if (err) {
+			console.error('Error ejecutando la consulta:', err);
+			return res.status(500).send('Error en la base de datos');
+		}
+
+		if (results.length === 0) {
+			return res.render('info', { elementos: null, mensaje: 'No se encontraron elementos.' });
+		}
+		
+		switch(type){
+			case "grupo":
+				res.render('clasificaciones/grupo', { query: results });
+				break;
+
+			case "lickable":
+				res.render('clasificaciones/lickable', { query: results });
+				break;
+		}
+	});
 });
 
 router.get('/laboratorio', (req, res) => {
