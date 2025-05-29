@@ -3,12 +3,12 @@ var mysql = require('mysql');
 // Configuración de la base de datos
 const db = mysql.createConnection({
   port: '3306',
-  //host: '192.168.1.71',
-  host: 'localhost',
-  user: 'tablakwn_admin',
-  //password: 'casaos',
-  password: 'perrobailandojazz',
-  database: 'tablakwn_tablaperiodica' 
+  host: '192.168.1.71',
+  //host: 'localhost',
+  user: 'root',
+  password: 'casaos',
+  //password: '',
+  database: 'tablaperiodica' 
 });
 
 // Conectar a la base de datos
