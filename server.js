@@ -1,5 +1,6 @@
 const app = require('./app');
 
-app.listen(() => {
-  console.log(`Servidor corriendo en https://tablaperiodica.xyz`);
+const port = 3000;
+app.listen(port, () => {
+  console.log(`Servidor corriendo en http://localhost:${port}`);
 });

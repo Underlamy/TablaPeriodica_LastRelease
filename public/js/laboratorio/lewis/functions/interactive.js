@@ -283,11 +283,12 @@ function newCompound(obj1, obj2) {
     let nombre, simbolo;
 
     let metales = ["metalesAlcalinos", "alcalinoTerreos", "metalesTransicion",
-        "otrosMetales", "metaloides", "lantanidos", "actinidos"];
+        "otrosMetales", "metaloides", "lantanidos", "actinidos", "otrosMetales"];
 
-    let noMetales = ["noMetales", "halogenos"];
+    let noMetales = ["noMetales", "halogenos", "gasesNobles"];
     let noMetalesElec = ["F", "Cl", "Br", "I", "O", "S", "Se"];
     let noMetalesNoElec = ["N", "P", "As", "Sb"];
+    const halogenos = ['fluor', 'cloro', 'bromo', 'yodo', 'astato'];
 
     console.log(objs);
     //SI es el compuesto es de un solo tipo de elemento
@@ -303,159 +304,161 @@ function newCompound(obj1, obj2) {
     //Si es un compuesto binario
     if (objs.tipos == 2) {
         objs.componentes.forEach(obj => {
+            let hayMetal = objs.componentes.some(comp => metales.includes(comp.tipo));
+            let hayNoMetal = objs.componentes.some(comp => noMetales.includes(comp.tipo));
+            const sonMetales = objs.componentes.every(comp => metales.includes(comp.tipo));
+            const sonNoMetales = objs.componentes.every(comp => noMetales.includes(comp.tipo));
+
+
+            if (hayMetal && hayNoMetal) {
+                let metal = objs.componentes.find(comp => metales.includes(comp.tipo));
+                let noMetal = objs.componentes.find(comp => noMetales.includes(comp.tipo));
+
+                simbolo = metal.simbolo + "<sub>" + objs[metal.nombre] + "</sub>" + noMetal.simbolo + "<sub>" + objs[noMetal.nombre] + "</sub>"
+                nombre = noMetal.nombre + "uro de " + metal.nombre;
+                type = "salesBinarias";
+            }
+
+            if(sonMetales){
+                let obj1 = obj;
+                let obj2 = objs.componentes.find(componente => componente.nombre.toLowerCase() !== obj1.nombre);
+
+                simbolo = obj1.simbolo + "<sub>" + objs[obj1.nombre] + "</sub>" + obj2.simbolo + "<sub>" + objs[obj2.nombre] + "</sub>"
+                nombre = obj1.nombre + "-" + obj2.nombre;
+                type = "aleacion"
+            }else if(sonNoMetales){
+                let obj1 = obj;
+                let obj2 = objs.componentes.find(componente => componente.nombre.toLowerCase() !== obj1.nombre);
+            }
+
+            if (obj.simbolo === "H") {
+                let otherElement = objs.componentes.find(componente => componente.nombre.toLowerCase() !== 'hidrogeno');
+
+                if (noMetales.includes(otherElement.tipo)) {
+                    if(otherElement.grupo == 17 || otherElement.grupo == 16){
+                        type = "hidracidos";
+                        nombre = "Acido " + raizNoMetal(otherElement.nombre) + "hidrico";
+                        simbolo = "H<sub>" + objs.hidrogeno + "</sub>" + otherElement.simbolo + "<sub>" + objs[otherElement.nombre] + "</sub>"; 
+
+                    }else{
+                        type = "hidrurosNoMetalicos";
+                        nombre = "Hidruro de " + otherElement.nombre;
+                        simbolo = otherElement.simbolo + "<sub>" + objs[otherElement.nombre] + "</sub>" + "H<sub>" + objs.hidrogeno + "</sub>"; 
+                    }
+                } else if (metales.includes(otherElement.tipo)) {
+                    type = "hidrurosMetalicos";
+                    simbolo = otherElement.simbolo + "<sub>" + objs[otherElement.nombre] + "</sub>" + "H<sub>" + objs.hidrogeno + "</sub>";
+                    nombre = "Hidruro de " + otherElement.nombre + numRomanos(otherElement.oxidacion);
+                }
+            }
+
             if (obj.simbolo === "O") {
                 let otherElement = objs.componentes.find(componente => componente.nombre.toLowerCase() !== 'oxigeno');
 
                 if (noMetales.includes(otherElement.tipo)) {
                     type = "oxidosNoMetalicos";
-                    objs.componentes.forEach(componente => {
-                        componente.obj3D.material.color.set(getTypeColor(type));
-                    });
-                    nombre = "Oxido de " + otherElement.nombre + numRomanos(otherElement.oxidacion);
+                    nombre = prefijosGriegos(objs.oxigeno) + "oxido de " + prefijosGriegos(objs[otherElement.nombre]) + otherElement.nombre + numRomanos(otherElement.oxidacion);
                 } else if (metales.includes(otherElement.tipo)) {
                     type = "oxidosMetalicos";
-                    objs.componentes.forEach(componente => {
-                        componente.obj3D.material.color.set(getTypeColor(type));
-                    });
                     if (infoObj1.simbolo === "O") nombre = "Oxido de " + otherElement.nombre +
                         numRomanos(otherElement.oxidacion);
                 }
 
                 simbolo = otherElement.simbolo + "<sub>" + objs[otherElement.nombre] + "</sub>" + "O" + "<sub>" + objs.oxigeno + "</sub>";
-                console.log(simbolo);
             }
         });
     }
 
-    console.log(nombre);
+    objs.componentes.forEach(componente => {
+        componente.obj3D.material.color.set(getTypeColor(type));
+    });
+
     return {
         nombre: nombre,
         simbolo: simbolo,
         tipo: type,
         componentes: objs.componentes
     };
+}
 
-    /*
-    if (infoObj1.elemento == true && infoObj2.elemento == true) {
-        let componentes = [infoObj1, infoObj2];
-        let numOxidacion = parseInt(infoObj1.oxidacion) + parseInt(infoObj2.oxidacion);
+function prefijosGriegos(cantidad){
+    let prefijo;
+    switch(cantidad){
+        case 1: 
+            prefijo = "mono"
+            break;
 
-        if (infoObj1.simbolo === "H" || infoObj2.simbolo === "H") {
-            let elemento;
-            if (infoObj1.simbolo !== "H") {
-                let temp = infoObj1;
-                infoObj1 = infoObj2;
-                infoObj2 = temp;
-            }
-            elemento = infoObj2;
+        case 2: 
+            prefijo = "di"
+            break;
+            
+        case 3: 
+            prefijo = "tri"
+            break;
+        
+        case 4: 
+            prefijo = "tetra"
+            break;
+            
+        case 5: 
+            prefijo = "penta"
+            break;
+            
+        case 6: 
+            prefijo = "hexa"
+            break;
+        
+        case 7: 
+            prefijo = "hepta"
+            break;
+    
+        case 8: 
+            prefijo = "octa"
+            break;
 
-            if (noMetales.includes(elemento.tipo) && noMetalesElec.includes(elemento.simbolo)) {
-                infoObj1.tipo = "hidracidos";
-                infoObj2.tipo = "hidracidos";
-                type = "hidracidos";
-
-                obj1.material.color.set(getTypeColor(type));
-                obj2.material.color.set(getTypeColor(type));
-
-                nombre = elemento.nombre + "uro de hidrogeno";
-                simbolo = "H" + elemento.simbolo;
-            } else if (noMetales.includes(elemento.tipo) &&
-                noMetalesNoElec.includes(elemento.simbolo)) {
-
-                infoObj1.tipo = "hidrurosNoMetalicos";
-                infoObj2.tipo = "hidrurosNoMetalicos";
-                type = "hidrurosNoMetalicos";
-                obj1.material.color.set(getTypeColor(infoObj1.tipo));
-                obj2.material.color.set(getTypeColor(infoObj1.tipo));
-                nombre = "Hidruro de " + elemento.nombre + numRomanos(elemento.oxidacion);
-                simbolo = "H" + elemento.simbolo;
-            } else if (metales.includes(elemento.tipo)) {
-                infoObj1.tipo = "hidrurosMetalicos";
-                infoObj2.tipo = "hidrurosMetalicos";
-                type = "hidrurosMetalicos";
-
-                if (infoObj1.simbolo === "H") {
-                    nombre = "Hidruro de " + elemento.nombre + numRomanos(elemento.oxidacion);
-                    simbolo = elemento.simbolo + "H";
-                    obj1.material.color.set(getTypeColor(type));
-                    obj2.material.color.set(getTypeColor(type));
-                }
-            }
-            simbolo = "H" + elemento.simbolo;
-
-            return {
-                nombre: nombre,
-                simbolo: "(" + simbolo + ") <sup>" + numOxidacion + "</sup>",
-                tipo: type,
-                componentes: componentes
-            };
-        }
-
-        if (noMetales.includes(infoObj1.tipo) && metales.includes(infoObj2.tipo)) {
-            var noMetal = infoObj1;
-            var metal = infoObj2;
-
-            infoObj1.tipo = "salesBinarias";
-            infoObj2.tipo = "salesBinarias";
-            type = "salesBinarias";
-            obj1.material.color.set(getTypeColor(type));
-            obj2.material.color.set(getTypeColor(type));
-            nombre = noMetal.nombre + "uro de " + metal.nombre + numRomanos(metal.oxidacion);
-            simbolo = metal.simbolo + noMetal.simbolo;
-
-            return {
-                nombre: nombre,
-                simbolo: "(" + simbolo + ") <sup>" + numOxidacion + "</sup>",
-                tipo: type,
-                componentes: componentes
-            };
-        } else if (noMetales.includes(infoObj2.tipo) && metales.includes(infoObj1.tipo)) {
-            var noMetal = infoObj2;
-            var metal = infoObj1;
-
-            infoObj1.tipo = "salesBinarias";
-            infoObj2.tipo = "salesBinarias";
-            type = "salesBinarias";
-            obj1.material.color.set(getTypeColor(type));
-            obj2.material.color.set(getTypeColor(type));
-            nombre = noMetal.nombre + "uro de " + metal.nombre + numRomanos(metal.oxidacion);
-            simbolo = metal.simbolo + noMetal.simbolo;
-
-            return {
-                nombre: nombre,
-                simbolo: "(" + simbolo + ") <sup>" + numOxidacion + "</sup>",
-                tipo: type
-            };
-
-        }
-
-        if (metales.includes(infoObj1.tipo) && metales.includes(infoObj2.tipo)) {
-            infoObj1.tipo = "aleacion";
-            infoObj2.tipo = "aleacion";
-            type = "aleacion";
-            obj1.material.color.set(getTypeColor(type));
-            obj2.material.color.set(getTypeColor(type));
-
-            return {
-                nombre: "aleacion de " + infoObj1.nombre + " y " + infoObj2.nombre,
-                simbolo: "(" + infoObj1.simbolo + infoObj2.simbolo + ") <sup>" + numOxidacion + "</sup>",
-                tipo: type,
-                componentes: componentes
-            };
-        }
-    } else {
-        let numOxidacion = 0, simbolo = "";
-
-        obj1.material.color.set(getTypeColor("desconocido"));
-        obj2.material.color.set(getTypeColor("desconocido"));
-
-        return {
-            nombre: "composición indeterminada",
-            simbolo: "(" + simbolo + ") <sup>" + numOxidacion + "</sup>",
-            tipo: "desconocido"
-        }
+        case 9:
+            prefijo = "nona"
+            break;
+    
+        case 10:
+            prefijo = "deca"
+            break;
     }
-        */
+
+    return prefijo;
+}
+
+function raizNoMetal(elemento) {
+  const raices = {
+    'cloro': 'clor',
+    'bromo': 'brom',
+    'yodo': 'yod',
+    'flúor': 'fluor',
+    'fluor': 'fluor',
+    'azufre': 'sulf',
+    'sulfuro': 'sulf',
+    'fósforo': 'fosf',
+    'fosforo': 'fosf',
+    'nitrógeno': 'nitr',
+    'nitrogeno': 'nitr',
+    'carbono': 'carbon',
+    'selenio': 'seleni',
+    'telurio': 'telur',
+    'boro': 'bor',
+    'hidrógeno': 'hidr',
+    'hidrogeno': 'hidr',
+    'cianuro': 'cian',
+    'cian': 'cian'
+  };
+
+  // Convertir a minúsculas para evitar problemas con mayúsculas
+  const clave = elemento.toLowerCase();
+
+  if (raices.hasOwnProperty(clave)) {
+    return raices[clave];
+  } else {
+    return 'Raíz no definida para este elemento';
+  }
 }
 
 function getComponents(obj1, obj2) {

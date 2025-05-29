@@ -5,10 +5,10 @@ const db = mysql.createConnection({
   port: '3306',
   //host: '192.168.1.71',
   host: 'localhost',
-  user: 'tablakwn_admin',
+  user: 'root',
   //password: 'casaos',
-  password: 'perrobailandojazz',
-  database: 'tablakwn_tablaperiodica' 
+  password: '',
+  database: 'tablaperiodica' 
 });
 
 // Conectar a la base de datos
