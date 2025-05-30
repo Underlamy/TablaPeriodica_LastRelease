@@ -50,10 +50,11 @@ setInterval(function () {
             document.getElementById(index).style.top = (wiwi.y - 20) + "px";
         }
     });
-
+    
+    /*
     dummies.forEach(element => {
         if (element.userData.rotate) {
-            //element.rotateZ(0.0523599);
+            element.rotateZ(0.0523599);
         } else if (element.userData.rotate == false){
             var x = Math.round(follow.getWorldPosition(new THREE.Vector3()).x - element.position.x);
             var y = Math.round(follow.getWorldPosition(new THREE.Vector3()).y - element.position.y);
@@ -76,6 +77,7 @@ setInterval(function () {
             }
         }
     });
+    */
 
     objUpdate.forEach(element => {
         element.userData.animationUpdate();

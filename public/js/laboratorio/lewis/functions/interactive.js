@@ -171,12 +171,12 @@ function stopElectronLink(electron, line, positions, geometry, update, listener)
         let dadInfoObj = elemento[raycasted.object.parent.userData.parent.id];
 
         let links = createLink(raycasted.object, electron);
+        console.log(links.dad.type.name);
 
         dadInfoObj.links.push(links.dad);
         momInfoObj.links.push(links.mom);
 
         let compoundInfo = newCompound(electron.parent.userData.parent, raycasted.object.parent.userData.parent);
-        console.log(compoundInfo);
 
         let compuesto = new infoObjCompound(compoundInfo);
         compound.push(compuesto);
@@ -189,33 +189,37 @@ function stopElectronLink(electron, line, positions, geometry, update, listener)
         line.userData.dad = electron;
         line.userData.mom = raycasted.object;
 
-        attractions.push({
-            nucleo1: electron.parent.userData.parent,
-            nucleo2: raycasted.object.parent.userData.parent,
-            electron1: electron,
-            electron2: raycasted.object,
-            enlace: line
-        });
+        if (links.dad.type.name == "ionico") {
+            scene.remove(line);
+        } else {
+            attractions.push({
+                nucleo1: electron.parent.userData.parent,
+                nucleo2: raycasted.object.parent.userData.parent,
+                electron1: electron,
+                electron2: raycasted.object,
+                enlace: line
+            });
 
-        electron.userData.child = line;
-        raycasted.object.userData.child = line;
+            electron.userData.child = line;
+            raycasted.object.userData.child = line;
 
-        positions = [target.x, target.y, 0, raycasterX, raycasterY, 0];
-        geometry.setPositions(positions);
 
-        relLink[electron.id].mom = raycasted.object;
-        objAnimationUpdate(relLink[electron.id].dad, () => {
-            positions = [relLink[electron.id].dad.getWorldPosition(new THREE.Vector3()).x, relLink[electron.id].dad.getWorldPosition(new THREE.Vector3()).y, 0,
-            relLink[electron.id].mom.getWorldPosition(new THREE.Vector3()).x, relLink[electron.id].mom.getWorldPosition(new THREE.Vector3()).y, 0];
+            positions = [target.x, target.y, 0, raycasterX, raycasterY, 0];
             geometry.setPositions(positions);
-        });
 
-        objAnimationUpdate(relLink[electron.id].mom, () => {
-            positions = [relLink[electron.id].dad.getWorldPosition(new THREE.Vector3()).x, relLink[electron.id].dad.getWorldPosition(new THREE.Vector3()).y, 0,
-            relLink[electron.id].mom.getWorldPosition(new THREE.Vector3()).x, relLink[electron.id].mom.getWorldPosition(new THREE.Vector3()).y, 0];
-            geometry.setPositions(positions);
-        });
+            relLink[electron.id].mom = raycasted.object;
+            objAnimationUpdate(relLink[electron.id].dad, () => {
+                positions = [relLink[electron.id].dad.getWorldPosition(new THREE.Vector3()).x, relLink[electron.id].dad.getWorldPosition(new THREE.Vector3()).y, 0,
+                relLink[electron.id].mom.getWorldPosition(new THREE.Vector3()).x, relLink[electron.id].mom.getWorldPosition(new THREE.Vector3()).y, 0];
+                geometry.setPositions(positions);
+            });
 
+            objAnimationUpdate(relLink[electron.id].mom, () => {
+                positions = [relLink[electron.id].dad.getWorldPosition(new THREE.Vector3()).x, relLink[electron.id].dad.getWorldPosition(new THREE.Vector3()).y, 0,
+                relLink[electron.id].mom.getWorldPosition(new THREE.Vector3()).x, relLink[electron.id].mom.getWorldPosition(new THREE.Vector3()).y, 0];
+                geometry.setPositions(positions);
+            });
+        }
     } else {
         scene.remove(line);
     }
@@ -235,6 +239,12 @@ function createLink(elecObj1, elecObj2) {
 
     if (electro >= 1.7) {
         name = "ionico"
+
+        if (elementInfoObj1.electroNegatividad > elementInfoObj2.electroNegatividad) {
+            transferElectron(elecObj1, elecObj2);
+        } else {
+            transferElectron(elecObj2, elecObj1);
+        }
     } else {
         name = "covalente"
     }
@@ -258,6 +268,26 @@ function createLink(elecObj1, elecObj2) {
     }
 
     return link;
+}
+
+function transferElectron(elecObj1, elecObj2) {
+    //elecObj1 siempre sera el objeto mas electronegativo
+    //debugger;
+    let reciever = elecObj1.parent;
+    let donor = elecObj2.parent;
+
+    donor.remove(elecObj2);
+    reciever.add(elecObj2);
+
+    let x = reciever.position.x + (Math.cos(elecObj1.userData.angulo * (Math.PI / 180)) * (elecObj1.userData.radio + elecObj2.userData.radio));
+    let y = reciever.position.y + (Math.sin(elecObj1.userData.angulo * (Math.PI / 180)) * (elecObj1.userData.radio + elecObj2.userData.radio));
+
+    console.log(x, y);
+    donor.userData.parent.position.set(x, y, 0);
+    donor.position.set(x, y, 0);
+
+    elecObj1.position.set((Math.cos((elecObj1.userData.angulo + 20) * (Math.PI / 180)) * elecObj1.userData.radio), (Math.sin((elecObj1.userData.angulo + 20) * (Math.PI / 180)) * elecObj1.userData.radio), 0);
+    elecObj2.position.set((Math.cos((elecObj1.userData.angulo - 20) * (Math.PI / 180)) * elecObj1.userData.radio), (Math.sin((elecObj1.userData.angulo - 20) * (Math.PI / 180)) * elecObj1.userData.radio), 0);
 }
 
 function infoObjCompound(obj) {
@@ -290,7 +320,6 @@ function newCompound(obj1, obj2) {
     let noMetalesNoElec = ["N", "P", "As", "Sb"];
     const halogenos = ['fluor', 'cloro', 'bromo', 'yodo', 'astato'];
 
-    console.log(objs);
     //SI es el compuesto es de un solo tipo de elemento
     if (objs.tipos == 1 && objs.total > 1) {
         nombre = infoObj1.nombre;
@@ -319,31 +348,41 @@ function newCompound(obj1, obj2) {
                 type = "salesBinarias";
             }
 
-            if(sonMetales){
+            if (sonMetales) {
                 let obj1 = obj;
                 let obj2 = objs.componentes.find(componente => componente.nombre.toLowerCase() !== obj1.nombre);
 
                 simbolo = obj1.simbolo + "<sub>" + objs[obj1.nombre] + "</sub>" + obj2.simbolo + "<sub>" + objs[obj2.nombre] + "</sub>"
                 nombre = obj1.nombre + "-" + obj2.nombre;
                 type = "aleacion"
-            }else if(sonNoMetales){
+            }
+
+            if (sonNoMetales) {
                 let obj1 = obj;
                 let obj2 = objs.componentes.find(componente => componente.nombre.toLowerCase() !== obj1.nombre);
+
+                if (obj1.electroNegatividad >= obj2.electroNegatividad) {
+                    simbolo = obj2.simbolo + "<sub>" + objs[obj2.nombre] + "</sub>" + obj1.simbolo + "<sub>" + objs[obj1.nombre] + "</sub>";
+                    nombre = obj1.nombre + "uro de " + obj2.nombre;
+                } else {
+                    simbolo = obj1.simbolo + "<sub>" + objs[obj1.nombre] + "</sub>" + obj2.simbolo + "<sub>" + objs[obj2.nombre] + "</sub>";
+                    nombre = obj2.nombre + "uro de " + obj1.nombre;
+                }
             }
 
             if (obj.simbolo === "H") {
                 let otherElement = objs.componentes.find(componente => componente.nombre.toLowerCase() !== 'hidrogeno');
 
                 if (noMetales.includes(otherElement.tipo)) {
-                    if(otherElement.grupo == 17 || otherElement.grupo == 16){
+                    if (otherElement.grupo == 17 || otherElement.grupo == 16) {
                         type = "hidracidos";
                         nombre = "Acido " + raizNoMetal(otherElement.nombre) + "hidrico";
-                        simbolo = "H<sub>" + objs.hidrogeno + "</sub>" + otherElement.simbolo + "<sub>" + objs[otherElement.nombre] + "</sub>"; 
+                        simbolo = "H<sub>" + objs.hidrogeno + "</sub>" + otherElement.simbolo + "<sub>" + objs[otherElement.nombre] + "</sub>";
 
-                    }else{
+                    } else {
                         type = "hidrurosNoMetalicos";
                         nombre = "Hidruro de " + otherElement.nombre;
-                        simbolo = otherElement.simbolo + "<sub>" + objs[otherElement.nombre] + "</sub>" + "H<sub>" + objs.hidrogeno + "</sub>"; 
+                        simbolo = otherElement.simbolo + "<sub>" + objs[otherElement.nombre] + "</sub>" + "H<sub>" + objs.hidrogeno + "</sub>";
                     }
                 } else if (metales.includes(otherElement.tipo)) {
                     type = "hidrurosMetalicos";
@@ -381,45 +420,45 @@ function newCompound(obj1, obj2) {
     };
 }
 
-function prefijosGriegos(cantidad){
+function prefijosGriegos(cantidad) {
     let prefijo;
-    switch(cantidad){
-        case 1: 
+    switch (cantidad) {
+        case 1:
             prefijo = "mono"
             break;
 
-        case 2: 
+        case 2:
             prefijo = "di"
             break;
-            
-        case 3: 
+
+        case 3:
             prefijo = "tri"
             break;
-        
-        case 4: 
+
+        case 4:
             prefijo = "tetra"
             break;
-            
-        case 5: 
+
+        case 5:
             prefijo = "penta"
             break;
-            
-        case 6: 
+
+        case 6:
             prefijo = "hexa"
             break;
-        
-        case 7: 
+
+        case 7:
             prefijo = "hepta"
             break;
-    
-        case 8: 
+
+        case 8:
             prefijo = "octa"
             break;
 
         case 9:
             prefijo = "nona"
             break;
-    
+
         case 10:
             prefijo = "deca"
             break;
@@ -429,36 +468,36 @@ function prefijosGriegos(cantidad){
 }
 
 function raizNoMetal(elemento) {
-  const raices = {
-    'cloro': 'clor',
-    'bromo': 'brom',
-    'yodo': 'yod',
-    'flúor': 'fluor',
-    'fluor': 'fluor',
-    'azufre': 'sulf',
-    'sulfuro': 'sulf',
-    'fósforo': 'fosf',
-    'fosforo': 'fosf',
-    'nitrógeno': 'nitr',
-    'nitrogeno': 'nitr',
-    'carbono': 'carbon',
-    'selenio': 'seleni',
-    'telurio': 'telur',
-    'boro': 'bor',
-    'hidrógeno': 'hidr',
-    'hidrogeno': 'hidr',
-    'cianuro': 'cian',
-    'cian': 'cian'
-  };
+    const raices = {
+        'cloro': 'clor',
+        'bromo': 'brom',
+        'yodo': 'yod',
+        'flúor': 'fluor',
+        'fluor': 'fluor',
+        'azufre': 'sulf',
+        'sulfuro': 'sulf',
+        'fósforo': 'fosf',
+        'fosforo': 'fosf',
+        'nitrógeno': 'nitr',
+        'nitrogeno': 'nitr',
+        'carbono': 'carbon',
+        'selenio': 'seleni',
+        'telurio': 'telur',
+        'boro': 'bor',
+        'hidrógeno': 'hidr',
+        'hidrogeno': 'hidr',
+        'cianuro': 'cian',
+        'cian': 'cian'
+    };
 
-  // Convertir a minúsculas para evitar problemas con mayúsculas
-  const clave = elemento.toLowerCase();
+    // Convertir a minúsculas para evitar problemas con mayúsculas
+    const clave = elemento.toLowerCase();
 
-  if (raices.hasOwnProperty(clave)) {
-    return raices[clave];
-  } else {
-    return 'Raíz no definida para este elemento';
-  }
+    if (raices.hasOwnProperty(clave)) {
+        return raices[clave];
+    } else {
+        return 'Raíz no definida para este elemento';
+    }
 }
 
 function getComponents(obj1, obj2) {
@@ -792,26 +831,29 @@ function createElectrons(nucleus, numElectrons) {
 
     for (let cont = 1; cont <= posElectrons.length; cont++) {
         let pair = JSON.stringify(posElectrons[cont - 1]);
+
         switch (pair) {
             case JSON.stringify([true, true]):
                 electron = new THREE.Mesh(geometryElectron, materialElectron);
                 dummies[nucleus.id].add(electron);
                 electron.userData.electron = true;
                 electron.userData.pair = true;
-                electron.position.set((Math.cos((angle[cont - 1] - 20) * 0.017453292519943295) * radio), (Math.sin((angle[cont - 1] - 20) * 0.017453292519943295) * radio), 0);
+                electron.position.set((Math.cos((angle[cont - 1] - 20) * (Math.PI / 180)) * radio), (Math.sin((angle[cont - 1] - 20) * (Math.PI / 180)) * radio), 0);
 
                 electron = new THREE.Mesh(geometryElectron, materialElectron);
                 dummies[nucleus.id].add(electron);
                 electron.userData.electron = true;
                 electron.userData.pair = true;
-                electron.position.set((Math.cos((angle[cont - 1] + 20) * 0.017453292519943295) * radio), (Math.sin((angle[cont - 1] + 20) * 0.017453292519943295) * radio), 0);
+                electron.position.set((Math.cos((angle[cont - 1] + 20) * (Math.PI / 180)) * radio), (Math.sin((angle[cont - 1] + 20) * (Math.PI / 180)) * radio), 0);
                 break;
 
             case JSON.stringify([true, false]):
                 electron = new THREE.Mesh(geometryElectron, materialElectron);
                 dummies[nucleus.id].add(electron);
                 electron.userData.electron = true;
-                electron.position.set((Math.cos(angle[cont - 1] * 0.017453292519943295) * radio), (Math.sin(angle[cont - 1] * 0.017453292519943295) * radio), 0);
+                electron.position.set((Math.cos(angle[cont - 1] * (Math.PI / 180)) * radio), (Math.sin(angle[cont - 1] * (Math.PI / 180)) * radio), 0);
+                electron.userData.angulo = (angle[cont - 1]);
+                electron.userData.radio = radio
                 break;
         }
     }
