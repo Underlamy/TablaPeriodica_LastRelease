@@ -245,3 +245,7 @@ video {
 	border: none;
 	background-color: transparent;
 }
+
+.ignore{
+   text-transform: none;
+}

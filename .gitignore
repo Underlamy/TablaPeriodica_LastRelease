@@ -1,3 +1,4 @@
 # Arhivos que son diferentes por cosas de servidores
  server.js
  connection.js
+ .env

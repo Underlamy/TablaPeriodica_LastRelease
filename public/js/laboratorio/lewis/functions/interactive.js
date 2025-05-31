@@ -61,18 +61,26 @@ function onMouseMove(event) {
     }
 
     if (mouseDown == true && atomSelected != undefined && clickObject[0] != undefined) {
-        scene.getObjectById(atomSelected).position.set(raycasterX, raycasterY, 0);
-        elemento[atomSelected].x = raycasterX;
-        elemento[atomSelected].y = raycasterY;
-        dummies[atomSelected].position.x = raycasterX;
-        dummies[atomSelected].position.y = raycasterY;
+        if (elemento[atomSelected].obj3D.userData.draggable == true) {
+            scene.getObjectById(atomSelected).position.set(raycasterX, raycasterY, 0);
+            elemento[atomSelected].x = raycasterX;
+            elemento[atomSelected].y = raycasterY;
+            dummies[atomSelected].position.x = raycasterX;
+            dummies[atomSelected].position.y = raycasterY;
 
-        let wiwi = toScreenPosition(scene.getObjectById(atomSelected), camera);
-        document.getElementById(atomSelected).style.left = (wiwi.x - 20) + "px";
-        document.getElementById(atomSelected).style.top = (wiwi.y - 20) + "px";
+            let wiwi = toScreenPosition(scene.getObjectById(atomSelected), camera);
+            document.getElementById(atomSelected).style.left = (wiwi.x - 20) + "px";
+            document.getElementById(atomSelected).style.top = (wiwi.y - 20) + "px";
+        }else if (elemento[atomSelected].obj3D.userData.draggable) {
+            let infoObj = elemento[elemento[atomSelected].obj3D.userData.draggable.id];
+            infoObj.obj3D.position.set(raycasterX, raycasterY, 0);
+            dummies[infoObj.id].position.x = raycasterX;
+            dummies[infoObj.id].position.y = raycasterY;
+            infoObj.x = raycasterX;
+            infoObj.y = raycasterY;
+        }
     }
 }
-
 
 let stopLineRegistered = false;
 window.addEventListener("mousedown", function (event) {
@@ -170,16 +178,15 @@ function stopElectronLink(electron, line, positions, geometry, update, listener)
         let momInfoObj = elemento[electron.parent.userData.parent.id];
         let dadInfoObj = elemento[raycasted.object.parent.userData.parent.id];
 
+        let compoundInfo = newCompound(electron.parent.userData.parent, raycasted.object.parent.userData.parent);
+        let compuesto = new infoObjCompound(compoundInfo);
+        compound.push(compuesto);
+
         let links = createLink(raycasted.object, electron);
         console.log(links.dad.type.name);
 
         dadInfoObj.links.push(links.dad);
         momInfoObj.links.push(links.mom);
-
-        let compoundInfo = newCompound(electron.parent.userData.parent, raycasted.object.parent.userData.parent);
-
-        let compuesto = new infoObjCompound(compoundInfo);
-        compound.push(compuesto);
 
         compuesto.componentes.forEach(componente => {
             componente.child = compuesto;
@@ -288,6 +295,23 @@ function transferElectron(elecObj1, elecObj2) {
 
     elecObj1.position.set((Math.cos((elecObj1.userData.angulo + 20) * (Math.PI / 180)) * elecObj1.userData.radio), (Math.sin((elecObj1.userData.angulo + 20) * (Math.PI / 180)) * elecObj1.userData.radio), 0);
     elecObj2.position.set((Math.cos((elecObj1.userData.angulo - 20) * (Math.PI / 180)) * elecObj1.userData.radio), (Math.sin((elecObj1.userData.angulo - 20) * (Math.PI / 180)) * elecObj1.userData.radio), 0);
+
+    anclarObjetos(reciever.userData.parent, donor.userData.parent);
+}
+
+//El hijo seguira las coordenadas del padre
+function anclarObjetos(parent, child) {
+    let x = parent.position.x - child.position.x;
+    let y = parent.position.y - child.position.y;
+
+    objAnimationUpdate(parent, () => {
+        child.position.set(parent.position.x - x, parent.position.y - y, 0);
+        dummies[child.id].position.set(parent.position.x - x, parent.position.y - y, 0);
+        elemento[child.id].x = parent.position.x - x;
+        elemento[child.id].y = parent.position.y - y;
+
+        child.userData.draggable = parent;
+    });
 }
 
 function infoObjCompound(obj) {
