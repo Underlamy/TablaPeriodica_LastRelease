@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const app = express();
@@ -31,9 +32,9 @@ app.use(session({
     saveUninitialized: false,
     store: sessionStore,
     cookie: {
-        secure: true, // true si usas HTTPS
+        secure: false, // true si usas HTTPS
         maxAge: 1000 * 60 * 60 * 7 // Una semana
-    }
+    },
 }));
 
 // Rutas
