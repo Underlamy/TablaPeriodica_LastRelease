@@ -1,5 +1,5 @@
 # Arhivos que son diferentes por cosas de servidores
 /node_modules
-server.js
-connection.js
+/server.js
+/connection.js
 .env
