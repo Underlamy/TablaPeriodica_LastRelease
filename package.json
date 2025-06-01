@@ -11,8 +11,10 @@
   "description": "",
   "dependencies": {
     "cookie-parser": "^1.4.7",
+    "dotenv": "^16.5.0",
     "ejs": "^3.1.10",
     "express": "^4.21.2",
+    "express-mysql-session": "^3.0.3",
     "express-session": "^1.18.1",
     "mysql": "^2.18.1",
     "three": "^0.171.0"

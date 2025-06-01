@@ -126,136 +126,118 @@ router.get('/laboratorio', (req, res) => {
 });
 
 router.get('/community', (req, res) => {
-	const get = req.query.q;
-	const userData = req.cookies.userData ? JSON.parse(req.cookies.userData) : null;
-	let getNoti, msg, formData;
+  const get = req.query.q;
+  const userData = req.session.user || null;
+  let getNoti, msg, formData;
 
-	switch (get) {
-		case "sugerencias":
-			let query = "SELECT s.IDSugerencia, s.IDUsuario, s.Texto, s.Tipo, s.Titulo, GROUP_CONCAT(v.IDVote) AS IDVotes, GROUP_CONCAT(v.Tipo) As Likes, GROUP_CONCAT(v.IDUsuario) AS IDAutores, u.Username FROM sugerencias s LEFT JOIN votes v ON s.IDSugerencia = v.IDSugerencia LEFT JOIN usuarios u ON s.IDUsuario = u.IDUsuario WHERE Valido = 1 GROUP BY s.IDSugerencia, s.IDUsuario, s.Texto, s.Tipo, s.Titulo;";
+  switch (get) {
+    case "sugerencias":
+      let query = `SELECT s.IDSugerencia, s.IDUsuario, s.Texto, s.Tipo, s.Titulo, 
+                   GROUP_CONCAT(v.IDVote) AS IDVotes, 
+                   GROUP_CONCAT(v.Tipo) As Likes, 
+                   GROUP_CONCAT(v.IDUsuario) AS IDAutores, 
+                   u.Username 
+                   FROM sugerencias s 
+                   LEFT JOIN votes v ON s.IDSugerencia = v.IDSugerencia 
+                   LEFT JOIN usuarios u ON s.IDUsuario = u.IDUsuario 
+                   WHERE Valido = 1 
+                   GROUP BY s.IDSugerencia, s.IDUsuario, s.Texto, s.Tipo, s.Titulo;`;
 
-			db.query(query, (err, resultados) => {
-				if (err) throw err;
+      db.query(query, (err, resultados) => {
+        if (err) throw err;
+        res.render('sugerencias', { sugerencias: resultados, user: userData });
+      });
+      break;
 
-				res.render('sugerencias', { sugerencias: resultados, user: userData });
-			});
-			break;
+    case "bitacora":
+      res.render('bitacora');
+      break;
 
-		case "bitacora":
-			res.render('bitacora');
-			break;
+    case "register":
+      formData = req.session.formData;
+      delete req.session.formData;
+      getNoti = req.query.n;
 
-		case "register":
-			formData = req.session.formData;
-			delete req.session.formData;
+      msg = "";
+      if (getNoti) {
+        msg = getNoti === "duplicated" ? "Ese nombre de usuario ya existe" : "Intentelo más tarde";
+      }
 
-			getNoti = req.query.n;
+      res.render("register", { user: userData, noti: msg, form: formData });
+      break;
 
-			msg = "";
+    case "login":
+      formData = req.session.formData;
+      delete req.session.formData;
+      getNoti = req.query.n;
 
-			if (getNoti) {
-				switch (getNoti) {
-					case "duplicated":
-						msg = "Ese nombre de usuario ya existe";
-						break;
+      msg = "";
+      if (getNoti) {
+        msg = getNoti === "notfound" ? "Usuario no encontrado" : "Intentelo más tarde";
+      }
 
-					default:
-						msg = "Intentelo mas tarde";
-						break;
-				}
-			}
+      res.render("login", { user: userData, noti: msg, form: formData });
+      break;
 
-			res.render("register", { user: userData, noti: msg, form: formData });
-			break;
+    case "logout":
+      req.session.destroy(err => {
+        if (err) {
+          console.error('Error al cerrar sesión:', err);
+          return res.status(500).send("Error al cerrar sesión");
+        }
+        res.redirect('/community');
+      });
+      break;
 
-		case "login":
-			formData = req.session.formData;
-			delete req.session.formData;
-
-			getNoti = req.query.n;
-
-			msg = "";
-
-			if (getNoti) {
-				switch (getNoti) {
-					case "notfound":
-						msg = "Usuario no encontrado";
-						break;
-
-					default:
-						msg = "Intentelo mas tarde";
-						break;
-				}
-			}
-
-			res.render("login", { user: userData, noti: msg, form: formData });
-			break;
-
-		case "logout":
-			req.cookies = {};
-			res.clearCookie("userData");
-
-			res.redirect('/community');
-			break;
-
-		default:
-			res.render('community', { user: userData });
-			break;
-	}
+    default:
+      res.render('community', { user: userData });
+      break;
+  }
 });
 
 router.post('/loginProcess', (req, res) => {
-	const { username, password } = req.body;
+  const { username, password } = req.body;
 
-	let query = "SELECT * FROM usuarios WHERE Username = ? AND Password = ?";
-	db.query(query, [username, password], (err, resultados) => {
-		if (err) throw err;
+  const query = "SELECT * FROM usuarios WHERE Username = ? AND Password = ?";
+  db.query(query, [username, password], (err, resultados) => {
+    if (err) throw err;
 
-		if (resultados.length === 0) {
-			req.session.formData = [username, password];
-			return res.redirect('/community?q=login&n=notfound');
-		}
+    if (resultados.length === 0) {
+      req.session.formData = [username, password];
+      return res.redirect('/community?q=login&n=notfound');
+    }
 
-		// Crear objeto de usuario sin datos sensibles
-		const userData = {
-			IDUsuario: resultados[0].IDUsuario,
-			Username: resultados[0].Username,
-			Dificultad: resultados[0].Dificultad,
-			UserInfo: resultados[0].UserInfo
-		};
+    const userData = {
+      IDUsuario: resultados[0].IDUsuario,
+      Username: resultados[0].Username,
+      Dificultad: resultados[0].Dificultad,
+      UserInfo: resultados[0].UserInfo
+    };
 
-		// Guardar cookie y luego redirigir
-		res.cookie('userData', JSON.stringify(userData), {
-			secure: false,
-			httpOnly: true
-		});
-
-		// ✅ Redirigir solo si no hubo error y no se envió respuesta antes
-		res.redirect('/community');
-	});
+    req.session.user = userData;
+    res.redirect('/community');
+  });
 });
 
 router.post('/registerProcess', (req, res) => {
-	const post = req.body;
+  const post = req.body;
 
-	let query = "INSERT INTO usuarios (Username, Password, UserInfo, JoinDate) VALUES (?, ?, 0, ?)";
-	let values = [post.username, post.password, getMySQLDatetime()];
+  const query = "INSERT INTO usuarios (Username, Password, UserInfo, JoinDate) VALUES (?, ?, 0, ?)";
+  const values = [post.username, post.password, getMySQLDatetime()];
 
-	db.query(query, values, (err, resultados) => {
-		if (err) {
-			if (err.code === 'ER_DUP_ENTRY') {
-				// Redirigir con mensaje de error o mostrar algo específico
-				req.session.formData = post;
-				return res.redirect('/community?q=register&n=duplicated');
-			} else {
-				console.error('❌ Error inesperado:', err);
-				return res.status(500).send('Error del servidor');
-			}
-		}
+  db.query(query, values, (err, resultados) => {
+    if (err) {
+      if (err.code === 'ER_DUP_ENTRY') {
+        req.session.formData = post;
+        return res.redirect('/community?q=register&n=duplicated');
+      } else {
+        console.error('❌ Error inesperado:', err);
+        return res.status(500).send('Error del servidor');
+      }
+    }
 
-		// Si todo va bien, redirigir a login
-		res.redirect('/community?q=login');
-	});
+    res.redirect('/community?q=login');
+  });
 });
 
 function getMySQLDatetime() {
