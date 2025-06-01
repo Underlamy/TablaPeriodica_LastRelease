@@ -13,12 +13,6 @@ app.use(cookieParser());
 // Configurar EJS como motor de plantillas
 app.set('view engine', 'ejs');
 
-// Middleware
-app.use(express.json());
-app.use(express.static('public'));
-app.use('/build/', express.static(path.join(__dirname, 'node_modules/three/build')));
-app.use('/jsm/', express.static(path.join(__dirname, 'node_modules/three/examples/jsm')));
-
 const sessionStore = new MySQLStore({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
@@ -32,10 +26,16 @@ app.use(session({
     saveUninitialized: false,
     store: sessionStore,
     cookie: {
-        secure: false, // true si usas HTTPS
+        secure: true, // true si usas HTTPS
         maxAge: 1000 * 60 * 60 * 7 // Una semana
     },
 }));
+
+// Middleware
+app.use(express.json());
+app.use(express.static('public'));
+app.use('/build/', express.static(path.join(__dirname, 'node_modules/three/build')));
+app.use('/jsm/', express.static(path.join(__dirname, 'node_modules/three/examples/jsm')));
 
 // Rutas
 const indexRoutes = require('./routes.js');

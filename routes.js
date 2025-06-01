@@ -65,8 +65,8 @@ router.get('/elementos', (req, res) => {
 		if (results.length === 0) {
 			return res.render('info', { elementos: null, mensaje: 'No se encontraron elementos.' });
 		}
-		
-		switch(type){
+
+		switch (type) {
 			case "grupo":
 				res.render('clasificaciones/grupo', { query: results });
 				break;
@@ -126,13 +126,13 @@ router.get('/laboratorio', (req, res) => {
 });
 
 router.get('/community', (req, res) => {
-  const get = req.query.q;
-  const userData = req.session.user || null;
-  let getNoti, msg, formData;
+	const get = req.query.q;
+	const userData = req.session.user || null;
+	let getNoti, msg, formData;
 
-  switch (get) {
-    case "sugerencias":
-      let query = `SELECT s.IDSugerencia, s.IDUsuario, s.Texto, s.Tipo, s.Titulo, 
+	switch (get) {
+		case "sugerencias":
+			let query = `SELECT s.IDSugerencia, s.IDUsuario, s.Texto, s.Tipo, s.Titulo, 
                    GROUP_CONCAT(v.IDVote) AS IDVotes, 
                    GROUP_CONCAT(v.Tipo) As Likes, 
                    GROUP_CONCAT(v.IDUsuario) AS IDAutores, 
@@ -143,101 +143,107 @@ router.get('/community', (req, res) => {
                    WHERE Valido = 1 
                    GROUP BY s.IDSugerencia, s.IDUsuario, s.Texto, s.Tipo, s.Titulo;`;
 
-      db.query(query, (err, resultados) => {
-        if (err) throw err;
-        res.render('sugerencias', { sugerencias: resultados, user: userData });
-      });
-      break;
+			db.query(query, (err, resultados) => {
+				if (err) throw err;
+				console.log(userData);
+				res.render('sugerencias', { sugerencias: resultados, user: userData });
+			});
+			break;
 
-    case "bitacora":
-      res.render('bitacora');
-      break;
+		case "bitacora":
+			res.render('bitacora');
+			break;
 
-    case "register":
-      formData = req.session.formData;
-      delete req.session.formData;
-      getNoti = req.query.n;
+		case "register":
+			formData = req.session.formData;
+			delete req.session.formData;
+			getNoti = req.query.n;
 
-      msg = "";
-      if (getNoti) {
-        msg = getNoti === "duplicated" ? "Ese nombre de usuario ya existe" : "Intentelo más tarde";
-      }
+			msg = "";
+			if (getNoti) {
+				msg = getNoti === "duplicated" ? "Ese nombre de usuario ya existe" : "Intentelo más tarde";
+			}
 
-      res.render("register", { user: userData, noti: msg, form: formData });
-      break;
+			res.render("register", { user: userData, noti: msg, form: formData });
+			break;
 
-    case "login":
-      formData = req.session.formData;
-      delete req.session.formData;
-      getNoti = req.query.n;
+		case "login":
+			formData = req.session.formData;
+			delete req.session.formData;
+			getNoti = req.query.n;
 
-      msg = "";
-      if (getNoti) {
-        msg = getNoti === "notfound" ? "Usuario no encontrado" : "Intentelo más tarde";
-      }
+			msg = "";
+			if (getNoti) {
+				msg = getNoti === "notfound" ? "Usuario no encontrado" : "Intentelo más tarde";
+			}
 
-      res.render("login", { user: userData, noti: msg, form: formData });
-      break;
+			res.render("login", { user: userData, noti: msg, form: formData });
+			break;
 
-    case "logout":
-      req.session.destroy(err => {
-        if (err) {
-          console.error('Error al cerrar sesión:', err);
-          return res.status(500).send("Error al cerrar sesión");
-        }
-        res.redirect('/community');
-      });
-      break;
+		case "logout":
+			req.session.destroy(err => {
+				if (err) {
+					console.error('Error al cerrar sesión:', err);
+					return res.status(500).send("Error al cerrar sesión");
+				}
+				res.redirect('/community');
+			});
+			break;
 
-    default:
-      res.render('community', { user: userData });
-      break;
-  }
+		default:
+			res.render('community', { user: userData });
+			break;
+	}
 });
 
 router.post('/loginProcess', (req, res) => {
-  const { username, password } = req.body;
+	const { username, password } = req.body;
 
-  const query = "SELECT * FROM usuarios WHERE Username = ? AND Password = ?";
-  db.query(query, [username, password], (err, resultados) => {
-    if (err) throw err;
+	const query = "SELECT * FROM usuarios WHERE Username = ? AND Password = ?";
+	db.query(query, [username, password], (err, resultados) => {
+		if (err) throw err;
 
-    if (resultados.length === 0) {
-      req.session.formData = [username, password];
-      return res.redirect('/community?q=login&n=notfound');
-    }
+		if (resultados.length === 0) {
+			req.session.formData = [username, password];
+			return res.redirect('/community?q=login&n=notfound');
+		}
 
-    const userData = {
-      IDUsuario: resultados[0].IDUsuario,
-      Username: resultados[0].Username,
-      Dificultad: resultados[0].Dificultad,
-      UserInfo: resultados[0].UserInfo
-    };
+		const userData = {
+			IDUsuario: resultados[0].IDUsuario,
+			Username: resultados[0].Username,
+			UserInfo: resultados[0].UserInfo
+		};
 
-    req.session.user = userData;
-    res.redirect('/community');
-  });
+		req.session.user = userData;
+		req.session.save(err => {
+			if (err) {
+				console.error("Error al guardar sesión:", err);
+				return res.status(500).send("Error de sesión");
+			}
+			res.redirect('/community');
+		});
+	});
 });
 
 router.post('/registerProcess', (req, res) => {
-  const post = req.body;
+	const post = req.body;
 
-  const query = "INSERT INTO usuarios (Username, Password, UserInfo, JoinDate) VALUES (?, ?, 0, ?)";
-  const values = [post.username, post.password, getMySQLDatetime()];
+	const query = "INSERT INTO usuarios (Username, Password, UserInfo, JoinDate) VALUES (?, ?, 0, ?)";
+	const values = [post.username, post.password, getMySQLDatetime()];
 
-  db.query(query, values, (err, resultados) => {
-    if (err) {
-      if (err.code === 'ER_DUP_ENTRY') {
-        req.session.formData = post;
-        return res.redirect('/community?q=register&n=duplicated');
-      } else {
-        console.error('❌ Error inesperado:', err);
-        return res.status(500).send('Error del servidor');
-      }
-    }
+	db.query(query, values, (err, resultados) => {
+		if (err) {
+			if (err.code === 'ER_DUP_ENTRY') {
+				req.session.formData = post;
+				return res.redirect('/community?q=register&n=duplicated');
+			} else {
+				console.error('❌ Error inesperado:', err);
+				return res.status(500).send('Error del servidor');
+			}
+		}
 
-    res.redirect('/community?q=login');
-  });
+		res.redirect('/community?q=login');
+	});
 });
 
 function getMySQLDatetime() {
